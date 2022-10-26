@@ -1,0 +1,19 @@
+syntax = "proto3";
+package recordpb;
+
+option go_package = "builder/pbs/recordpb";
+
+enum StatusType {
+  Init = 0;
+  Building = 1;
+  Success = 2;
+  Failed = 3;
+}
+
+message Record {
+  int64 id = 1;
+  string giturl = 2;
+  string revision = 3;
+  string image = 4;
+  string tag = 5;
+}

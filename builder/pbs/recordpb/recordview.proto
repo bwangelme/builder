@@ -1,0 +1,36 @@
+syntax = "proto3";
+package recordpb;
+
+option go_package = "builder/pbs/recordpb";
+
+import "builder/pbs/recordpb/record.proto";
+
+message CreateRecordReq {
+  string giturl = 2;
+  string revision = 3;
+  string image = 4;
+  string tag = 5;
+}
+
+message CreateRecordResp {
+  message RecordContainer {
+    Record record = 1;
+  }
+
+  string error = 1;
+  RecordContainer data = 2;
+}
+
+message ListRecordReq {
+  int64 start = 1;
+  int64 limit = 2;
+}
+
+message ListRecordResp {
+  message RecordContainer {
+    repeated Record records = 1;
+  }
+
+  string error = 1;
+  RecordContainer data = 2;
+}
