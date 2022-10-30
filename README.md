@@ -30,20 +30,13 @@ k apply -f k8s-config/docker_config.yaml
 k apply -f k8s-config/buildkitd_deploy.yaml
 ```
 
-## 手动操作
-
-```shell
-buildctl -addr tcp://192.168.56.13:1234 build --frontend dockerfile.v0 --local context=`pwd` --local dockerfile=`
-pwd`
-```
-
 ## 笔记
 
 ### buildkitd 设置代理
 
 设置了 `HTTP_PROXY` 和 `HTTPS_PROXY` 环境变量后，拉取镜像就会自动走代理
 
-### buildkitd build 景象并自动推送
+### buildkitd build 镜像并自动推送
 
 ```shell
 buildctl -addr tcp://192.168.56.13:1234 build --frontend dockerfile.v0 --local context=`pwd` --local dockerfile=`pwd` --output type=image,name=docker.io/bwangel/kubia:ee9f3c5,push=true
@@ -57,4 +50,4 @@ mkdir -p /.docker
 echo "{\"auths\": {\"https://index.docker.io/v1/\": {\"auth\": \"$BASE64_AUTH\"}}}" > ~/.docker/config.json
 ```
 
-使用 `docker login` 登陆到 docker registry 之后，就能够在 `~/.docker/config.json` 中看到认证信息
+使用 `docker login` 登陆到 docker registry 之后，也能够在 `~/.docker/config.json` 中看到认证信息
