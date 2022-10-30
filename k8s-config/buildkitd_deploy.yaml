@@ -23,59 +23,76 @@ spec:
         k8s-app: buildkitd
     spec:
       containers:
-      - args:
-        - --addr
-        - unix:///run/user/1000/buildkit/buildkitd.sock
-        - --addr
-        - tcp://0.0.0.0:1234
-        - --oci-worker-snapshotter
-        - overlayfs
-        image: moby/buildkit:master
-        imagePullPolicy: IfNotPresent
-        livenessProbe:
-          exec:
-            command:
-            - buildctl
+        - args:
+            - --addr
+            - unix:///run/user/1000/buildkit/buildkitd.sock
             - --addr
             - tcp://0.0.0.0:1234
-            - debug
-            - workers
-          failureThreshold: 3
-          initialDelaySeconds: 5
-          periodSeconds: 30
-          successThreshold: 1
-          timeoutSeconds: 1
-        name: buildkitd
-        ports:
-        - containerPort: 1234
-          hostPort: 1234
-          protocol: TCP
-        readinessProbe:
-          exec:
-            command:
-            - buildctl
-            - --addr
-            - tcp://0.0.0.0:1234
-            - debug
-            - workers
-          failureThreshold: 3
-          initialDelaySeconds: 5
-          periodSeconds: 30
-          successThreshold: 1
-          timeoutSeconds: 1
-        resources:
-          limits:
-            memory: 1Gi
-          requests:
-            cpu: "1"
-            memory: 1Gi
-        securityContext:
-          privileged: true
-        terminationMessagePath: /dev/termination-log
-        terminationMessagePolicy: File
+            - --oci-worker-snapshotter
+            - overlayfs
+          image: moby/buildkit:master
+          volumeMounts:
+            - mountPath: /root/.docker/
+              name: docker-config
+              readOnly: true
+          imagePullPolicy: IfNotPresent
+#          env:
+#            - name: HTTP_PROXY
+#              value: 127.0.0.1:8118
+#            - name: HTTPS_PROXY
+#              value: 127.0.0.1:8118
+          livenessProbe:
+            exec:
+              command:
+                - buildctl
+                - --addr
+                - tcp://0.0.0.0:1234
+                - debug
+                - workers
+            failureThreshold: 3
+            initialDelaySeconds: 5
+            periodSeconds: 30
+            successThreshold: 1
+            timeoutSeconds: 1
+          name: buildkitd
+          ports:
+            - containerPort: 1234
+              hostPort: 1234
+              protocol: TCP
+          readinessProbe:
+            exec:
+              command:
+                - buildctl
+                - --addr
+                - tcp://0.0.0.0:1234
+                - debug
+                - workers
+            failureThreshold: 3
+            initialDelaySeconds: 5
+            periodSeconds: 30
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              memory: 1Gi
+            requests:
+              cpu: "1"
+              memory: 1Gi
+          securityContext:
+            privileged: true
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
       dnsPolicy: ClusterFirst
       hostNetwork: true
       restartPolicy: Always
       schedulerName: default-scheduler
-      securityContext: {}
+      securityContext: { }
       terminationGracePeriodSeconds: 30
+      volumes:
+        - configMap:
+            defaultMode: 420
+            items:
+              - key: config.json
+                path: config.json
+            name: docker-config
+          name: docker-config
